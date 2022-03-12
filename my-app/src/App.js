@@ -1,37 +1,39 @@
-import React, { useState } from 'react';
-import './App.css';
-import NewUser from './components/NewUser/NewUser';
-import UserList from './components/UserList/UserList';
+import React, { useState, useEffect } from "react";
 
-const User_List = [];
+import Login from "./components/Login/Login";
+import Home from "./components/Home/Home";
+import MainHeader from "./components/MainHeader/MainHeader";
 
 function App() {
-  const [userList, setUserList] = useState(User_List);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const updateUserListHandler = (newUser) => {
-    setUserList(prev => {
-      const prevArr = [...prev];
-      prevArr.unshift(newUser);
-      return prevArr;
-    });
-  }
+  useEffect(() => {
+    const userLoggedInInfo = localStorage.getItem("isLoggedIn");
+    if (userLoggedInInfo === "1") {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
-  const deleteHandler = deleteUserId => {
-    setUserList(prev => {
-      const deletedArr = prev.filter(user => user.id !== deleteUserId);
-      return deletedArr;
-    });
-  }
+  const loginHandler = (email, password) => {
+    // We should of course check email and password
+    // But it's just a dummy/ demo anyways
+    localStorage.setItem("isLoggedIn", "1");
+    setIsLoggedIn(true);
+  };
 
-  console.log("in app");
-  console.log(userList);
+  const logoutHandler = () => {
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
+  };
+
   return (
-    <div>
-      <NewUser onUpdateUserList={updateUserListHandler} />
-      <UserList userList={userList} onDelete={deleteHandler} />
-    </div>
-
-
+    <React.Fragment>
+      <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </main>
+    </React.Fragment>
   );
 }
 
